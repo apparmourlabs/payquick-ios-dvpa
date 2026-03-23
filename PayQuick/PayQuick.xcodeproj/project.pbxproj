@@ -28,7 +28,7 @@
 
 /* Begin PBXGroup section */
 		A4000001 = { isa = PBXGroup; children = (A4000002, A3000001); sourceTree = "<group>"; };
-		A4000002 /* PayQuick */ = { isa = PBXGroup; children = (A2000001, A2000008, A4000003, A4000004, A4000005, A4000006); path = PayQuick; sourceTree = "<group>"; };
+		A4000002 /* PayQuick */ = { isa = PBXGroup; children = (A2000001, A2000008, A4000003, A4000004, A4000005, A4000006, A4000007); path = PayQuick; sourceTree = "<group>"; };
 		A4000003 /* Utils */ = { isa = PBXGroup; children = (A2000002); path = Utils; sourceTree = "<group>"; };
 		A4000004 /* Network */ = { isa = PBXGroup; children = (A2000003); path = Network; sourceTree = "<group>"; };
 		A4000005 /* Storage */ = { isa = PBXGroup; children = (A2000004); path = Storage; sourceTree = "<group>"; };
