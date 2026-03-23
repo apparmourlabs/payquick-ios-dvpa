@@ -24,7 +24,7 @@ jobs:
             -project PayQuick.xcodeproj \
             -scheme PayQuick \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Release \
             -derivedDataPath "$DERIVED_DATA" \
             CODE_SIGN_IDENTITY="-" \
