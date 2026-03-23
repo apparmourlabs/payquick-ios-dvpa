@@ -19,35 +19,41 @@ jobs:
       - name: Build for Simulator
         run: |
           cd PayQuick
+          DERIVED_DATA="$RUNNER_TEMP/DerivedData"
           xcodebuild build \
             -project PayQuick.xcodeproj \
             -scheme PayQuick \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -configuration Release \
+            -derivedDataPath "$DERIVED_DATA" \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=NO \
-            2>&1 | tail -20
+            ONLY_ACTIVE_ARCH=NO
 
       - name: Package as IPA
         run: |
-          cd PayQuick
-          BUILD_DIR=$(xcodebuild -project PayQuick.xcodeproj -scheme PayQuick -sdk iphonesimulator -showBuildSettings 2>/dev/null | grep -m1 "BUILD_DIR" | awk '{print $3}')
-          APP_PATH="$BUILD_DIR/Release-iphonesimulator/PayQuick.app"
+          DERIVED_DATA="$RUNNER_TEMP/DerivedData"
+          echo "=== Looking for .app ==="
+          find "$DERIVED_DATA" -name "PayQuick.app" -type d 2>/dev/null
 
-          if [ ! -d "$APP_PATH" ]; then
-            echo "Looking for .app..."
-            find ~/Library/Developer/Xcode -name "PayQuick.app" -type d 2>/dev/null | head -5
-            APP_PATH=$(find ~/Library/Developer/Xcode -name "PayQuick.app" -type d 2>/dev/null | head -1)
+          APP_PATH=$(find "$DERIVED_DATA" -name "PayQuick.app" -type d | head -1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: PayQuick.app not found in DerivedData"
+            find "$DERIVED_DATA" -name "*.app" -type d 2>/dev/null
+            exit 1
           fi
 
-          echo "App path: $APP_PATH"
+          echo "App found: $APP_PATH"
+          echo "App size: $(du -sh "$APP_PATH" | cut -f1)"
+
           mkdir -p Payload
           cp -r "$APP_PATH" Payload/
-          zip -r PayQuick-v2.3.1-dvpa.ipa Payload/
+          cd . && zip -r PayQuick-v2.3.1-dvpa.ipa Payload/
           ls -la PayQuick-v2.3.1-dvpa.ipa
+          echo "IPA size: $(du -sh PayQuick-v2.3.1-dvpa.ipa | cut -f1)"
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
