@@ -8,14 +8,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         window = UIWindow(frame: UIScreen.main.bounds)
-        let vc = UIViewController()
-        vc.view.backgroundColor = .systemBackground
-        window?.rootViewController = UINavigationController(rootViewController: vc)
-        window?.makeKeyAndVisible()
-
+        let rootVC: UIViewController
         if UserDefaults.standard.isLoggedIn {
             NSLog("[App] User logged in, token: \(UserDefaults.standard.authToken ?? "nil")")
+            rootVC = HomeViewController()
+        } else {
+            rootVC = LoginViewController()
         }
+        window?.rootViewController = UINavigationController(rootViewController: rootVC)
+        window?.makeKeyAndVisible()
 
         return true
     }
