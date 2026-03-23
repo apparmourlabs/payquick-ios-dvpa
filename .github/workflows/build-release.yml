@@ -5,9 +5,12 @@ on:
     branches: [master]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  build:
-    name: Build IPA
+  build-and-release:
+    name: Build IPA & Release
     runs-on: macos-latest
 
     steps:
@@ -35,49 +38,22 @@ jobs:
       - name: Package as IPA
         run: |
           DERIVED_DATA="$RUNNER_TEMP/DerivedData"
-          echo "=== Looking for .app ==="
-          find "$DERIVED_DATA" -name "PayQuick.app" -type d 2>/dev/null
-
           APP_PATH=$(find "$DERIVED_DATA" -name "PayQuick.app" -type d | head -1)
-
-          if [ -z "$APP_PATH" ]; then
-            echo "ERROR: PayQuick.app not found in DerivedData"
-            find "$DERIVED_DATA" -name "*.app" -type d 2>/dev/null
-            exit 1
-          fi
-
           echo "App found: $APP_PATH"
           echo "App size: $(du -sh "$APP_PATH" | cut -f1)"
-
           mkdir -p Payload
           cp -r "$APP_PATH" Payload/
-          cd . && zip -r PayQuick-v2.3.1-dvpa.ipa Payload/
-          ls -la PayQuick-v2.3.1-dvpa.ipa
+          zip -r PayQuick-v2.3.1-dvpa.ipa Payload/
           echo "IPA size: $(du -sh PayQuick-v2.3.1-dvpa.ipa | cut -f1)"
 
-      - name: Upload IPA
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: PayQuick-iOS
-          path: PayQuick/PayQuick-v2.3.1-dvpa.ipa
-
-  release:
-    name: Create Release
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download IPA
-        uses: actions/download-artifact@v4
-        with:
-          name: PayQuick-iOS
+          path: PayQuick-v2.3.1-dvpa.ipa
 
       - name: Create Release
+        if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v2.3.1-ios
@@ -93,6 +69,6 @@ jobs:
             ### Scan It
             Upload to [AppArmour Labs](https://apparmourlabs.com/scan) for automated security analysis.
 
-            > Note: This is a simulator build (unsigned). For SAST analysis purposes only — not installable on physical devices.
+            > Note: This is a simulator build (unsigned). For SAST analysis purposes only.
           files: PayQuick-v2.3.1-dvpa.ipa
           make_latest: false
