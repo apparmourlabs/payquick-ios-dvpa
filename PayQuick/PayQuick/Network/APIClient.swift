@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// HTTP client for PayQuick API communication.
 class APIClient: NSObject, URLSessionDelegate {
